@@ -43,7 +43,7 @@ function DerivAPI(websocketUrl: string): DerivAPI {
   function handleOpen() {
     console.log('connection opened');
     emitter.emit('open');
-    connection.send(JSON.stringify({ authorize: 'a1-FywiTnbVK0RAoMYW50IaTXkvbNouA' }));
+    connection.send(JSON.stringify({ authorize: 'a1-' }));
   }
 
   function handleMessage(event: MessageEvent) {

@@ -19,7 +19,7 @@ type Advert = {
 
 type AdvertsEmitter = Emittery<{ change: Advert[], close: any }>;
 
-async function watchAdverts (emitter: AdvertsEmitter, Deriv: DerivAPI) {
+async function watchAdverts (Deriv: DerivAPI, emitter: AdvertsEmitter) {
   if (!Deriv.isAuthorized) {
     return;
   }
@@ -32,14 +32,18 @@ async function watchAdverts (emitter: AdvertsEmitter, Deriv: DerivAPI) {
     if (data.error) {
       return;
     }
-    emitter.emit('change', data.p2p_advertiser_adverts.list);
+    emitter.emit('change', data.p2p_advertiser_adverts.list.map(item => {
+      return {
+        ...item,
+        amount: (Math.random() * 100).toFixed(2)
+      }
+    }));
   };
 
-  const timer = setInterval(refresh, 5000);
+  const timer = setInterval(refresh, 2500);
   refresh();
 
   emitter.on('close', () => {
-    console.log('cleanup');
     clearInterval(timer);
   });
 }

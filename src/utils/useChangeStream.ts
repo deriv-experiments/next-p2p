@@ -2,25 +2,48 @@ import { useContext, useEffect, useState } from "react";
 import Emittery from "emittery";
 import DerivAPIContext from "@/context/DerivAPIContext";
 
+const cache = new Map();
+
 const useChangeStream = <T = any>(fn: (emitter: Emittery<{ change: T[], close: any }>, ...args: any[]) => void, ...args: any[]): T[] | undefined => {
   const Deriv = useContext(DerivAPIContext);
   const [state, setState] = useState<T[]>();
 
   useEffect(() => {
-    setState(undefined);
-    const emitter = new Emittery<{ change: T[], close: any }>();
-    emitter.on('change', setState);
-    emitter.on('error', console.error);
-    fn(emitter, Deriv, ...args);
+    let key = JSON.stringify(args);
+    let emitter = cache.get(key);
 
-    Deriv.on('authorize', async () => {
-      fn(emitter, Deriv, ...args);
-    });
+    if (emitter) {
+      emitter.on('change', setState);
+      emitter.listenerCount++;
+      setState(emitter.lastValue);
+    }
+
+    if (!emitter) {
+      emitter = new Emittery<{ change: T[], close: any }>();
+      emitter.listenerCount = 1;
+      emitter.on('change', value => {
+        emitter.lastValue = value;
+      });
+      cache.set(key, emitter);
+      emitter.on('change', setState);
+
+      fn(Deriv, emitter, ...args);
+
+      Deriv.on('authorize', async () => {
+        fn(Deriv, emitter, ...args);
+      });
+    }
 
     return () => {
-      emitter.emit('close');
+      emitter.off('change', setState);
+      emitter.listenerCount--;
+
+      if (emitter.listenerCount === 0) {
+        emitter.emit('close');
+        cache.delete(key);
+      }
     };
-  }, [fn, JSON.stringify(args)]);
+  }, [fn, ...args]);
 
   return state;
 }

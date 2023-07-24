@@ -1,16 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import watchAdverts from "@/logic/adverts/watch";
 import listAdverts from "@/logic/adverts/list";
 import useChangeStream from "@/utils/useChangeStream";
 import useDerivAPI from "@/utils/useDerivAPI";
 import usePromise from "@/utils/usePromise";
+import RenderMultiplier from "@/components/RenderMultipler";
 
 function Offers() {
   const Deriv = useDerivAPI();
   const adverts = useChangeStream(watchAdverts);
-  // const adverts = usePromise(listAdverts);
 
-  if (!Deriv.isAuthorized) { 
+  if (!Deriv.isAuthorized) {
     return 'You need to be logged in';
   }
 
@@ -34,6 +34,7 @@ function Offers() {
           <th></th>
           <th>ID</th>
           <th>Account Currency</th>
+          <th>Amount</th>
           <th>Active Orders</th>
           <th>Counterparty Type</th>
           <th>Local Currency</th>
@@ -48,6 +49,7 @@ function Offers() {
             <td>{item.is_visible ? 'Y' : 'N'}</td>
             <td>{item.advertiser_details.id}</td>
             <td>{item.account_currency}</td>
+            <td>{item.amount}</td>
             <td>{item.rate_display}</td>
             <td>{item.active_orders}</td>
             <td>{item.counterparty_type}</td>
@@ -64,9 +66,6 @@ function Offers() {
 
 export default function OffersPage () {
   return (
-    <>
-      <Offers />
-      <Offers />
-    </>
+    <RenderMultiplier component={Offers} min={0} max={5} />
   );
 }

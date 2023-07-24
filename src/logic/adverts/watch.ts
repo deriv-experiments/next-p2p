@@ -4,6 +4,7 @@ import Emittery from "emittery";
 type Advert = {
   account_currency: string;
   active_orders: number;
+  amount: number;
   advertiser_details: {
       id: string;
   };
@@ -30,15 +31,18 @@ async function watchAdverts (Deriv: DerivAPI, emitter: AdvertsEmitter) {
     });
 
     if (data.error) {
+      alert(data.error);
       return;
     }
 
-    emitter.emit('change', data.p2p_advertiser_adverts.list.map(item => {
+    const adverts = data.p2p_advertiser_adverts.list.map(item => {
       return {
         ...item,
         amount: (Math.random() * 100).toFixed(2)
       }
-    }));
+    });
+
+    emitter.emit('change', adverts);
   };
 
   const timer = setInterval(refresh, 2500);

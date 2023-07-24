@@ -32,6 +32,7 @@ async function watchAdverts (Deriv: DerivAPI, emitter: AdvertsEmitter) {
     if (data.error) {
       return;
     }
+
     emitter.emit('change', data.p2p_advertiser_adverts.list.map(item => {
       return {
         ...item,

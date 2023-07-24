@@ -15,7 +15,7 @@ export default function App({ Component, pageProps }: AppProps) {
   }, []);
 
   if (!isConnected) {
-    return 'Not Connected';
+    return 'Not Connected. Connecting...';
   }
 
   return (
